@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Upload, FolderOpen, ChevronDown, ChevronUp, Rocket } from "lucide-react";
+import { ingestBook } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -12,15 +13,61 @@ const progressSteps = [
 
 const IngestSection = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [ingesting, setIngesting] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [ingesting, setIngesting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    setSelectedFile(file);
+    setStatusMessage(null);
+    setErrorMessage(null);
+  };
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleStartIngestion = async () => {
+    if (!selectedFile) {
+      setErrorMessage("Please choose a PDF file before starting ingestion.");
+      return;
+    }
+
+    setIngesting(true);
+    setStatusMessage(null);
+    setErrorMessage(null);
+
+    try {
+      await ingestBook(selectedFile);
+      setStatusMessage("Ingestion completed successfully.");
+      setSelectedFile(null);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Ingestion failed.";
+      console.error("Ingest error:", errorMsg);
+      setErrorMessage(errorMsg);
+    } finally {
+      setIngesting(false);
+    }
+  };
 
   return (
     <div className="rounded-lg border bg-card overflow-hidden">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       <div className="flex items-center justify-between px-5 py-3 border-b bg-muted/40">
-        <h2 className="text-sm font-semibold">
-          Step 1 — Ingest Your Book
-        </h2>
-        <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">1/2</span>
+        <h2 className="text-sm font-semibold">Step 1 — Ingest Your Book</h2>
+        <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+          1/2
+        </span>
       </div>
 
       <div className="p-5 space-y-4">
@@ -28,22 +75,46 @@ const IngestSection = () => {
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Input
-              placeholder="book.pdf"
+              value={selectedFile?.name ?? "Select a PDF file..."}
+              readOnly
               className="pr-10 font-mono text-sm"
             />
-            <FolderOpen className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <button
+              type="button"
+              onClick={handleBrowseClick}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </button>
           </div>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" onClick={handleBrowseClick}>
             <Upload className="h-4 w-4" />
           </Button>
         </div>
+
+        {errorMessage && (
+          <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {errorMessage}
+          </div>
+        )}
+
+        {statusMessage && (
+          <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
+            {statusMessage}
+          </div>
+        )}
 
         {/* Advanced settings */}
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
           className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          type="button"
         >
-          {showAdvanced ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          {showAdvanced ? (
+            <ChevronUp className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronDown className="h-3.5 w-3.5" />
+          )}
           Advanced Settings
         </button>
 
@@ -85,9 +156,9 @@ const IngestSection = () => {
         )}
 
         {/* Start button */}
-        <Button className="w-full gap-2" size="lg">
+        <Button className="w-full gap-2" size="lg" onClick={handleStartIngestion} disabled={ingesting}>
           <Rocket className="h-4 w-4" />
-          Start Ingestion
+          {ingesting ? "Ingesting…" : "Start Ingestion"}
         </Button>
 
         {/* Progress */}
