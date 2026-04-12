@@ -6,7 +6,7 @@ const Header = () => (
       <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
         <BookOpen className="h-5 w-5 text-primary-foreground" />
       </div>
-      <h1 className="text-3xl font-bold tracking-tight">RAG Chat</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Llama Research Assistant</h1>
     </div>
     <p className="text-muted-foreground text-sm">
       Retrieval-Augmented Generation · Fully Local · Free
