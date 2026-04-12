@@ -10,7 +10,7 @@ from Research_Assistant_RAG import (ingest,ask,retrieve_chunks,get_or_create_col
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["http://localhost:5173"],
+    allow_origins = ["http://localhost:8080"],
     allow_methods = ["*"],
     allow_headers = ["*"]
 )
