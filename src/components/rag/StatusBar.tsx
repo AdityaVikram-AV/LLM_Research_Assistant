@@ -6,7 +6,7 @@ interface Status {
   healthy: boolean;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 const StatusBar = () => {
   const [statuses, setStatuses] = useState<Status[]>([

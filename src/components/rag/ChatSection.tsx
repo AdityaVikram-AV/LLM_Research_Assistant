@@ -83,8 +83,13 @@ const ChatSection = ({ onChunksReceived }: ChatSectionProps) => {
     try {
       const response = await queryBook(input);
 
+      // Check if response is an error
+      if (response.status === "error") {
+        throw new Error(response.message);
+      }
+
       // Pass chunks to parent component
-      if (onChunksReceived) {
+      if (onChunksReceived && response.chunks) {
         onChunksReceived(
           response.chunks.map((c: any) => ({
             page: c.page,
