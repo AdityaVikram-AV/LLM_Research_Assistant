@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import sys
 import os
 
@@ -19,11 +19,7 @@ app.add_middleware(
 ACTIVE_COLLECTION = os.getenv("COLLECTION_NAME", COLLECTION_NAME)
 
 class QuestionRequest(BaseModel):
-    question: str
-    
-    class Config:
-        min_length = 1
-        max_length = 1000
+    question: str = Field(min_length=1, max_length=1000)
 
 @app.get("/status")
 def status():
