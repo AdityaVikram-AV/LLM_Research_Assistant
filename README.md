@@ -2,6 +2,8 @@
 
 A fully local, AI-powered research assistant that lets you upload PDFs and ask questions using retrieval-augmented generation (RAG). Powered by Ollama, ChromaDB, and Llama 3.2.
 
+<img width="2940" height="3140" alt="Screenshot 2026-04-23 at 14-20-02 Lovable App" src="https://github.com/user-attachments/assets/9c95719a-4b4c-4325-9c7c-4694765c41ca" />
+
 ## Features
 
 - 📄 **PDF Upload & Ingestion** - Upload PDFs and automatically extract and index content
